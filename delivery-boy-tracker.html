@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>डिलीवरी बॉय - Delivery Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .header-subtitle {
+            font-size: 16px;
+            color: #666;
+        }
+        
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .input-group {
+            margin-bottom: 30px;
+        }
+        
+        .label {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+            display: block;
+        }
+        
+        .order-input {
+            width: 100%;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            outline: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .order-input:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+        
+        .payment-section {
+            margin-bottom: 30px;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .radio-option {
+            flex: 1;
+        }
+        
+        .radio-option input[type="radio"] {
+            display: none;
+        }
+        
+        .radio-label {
+            display: block;
+            padding: 20px;
+            background: #f5f5f5;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .radio-option input[type="radio"]:checked + .radio-label {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+        
+        .delivery-section {
+            margin-bottom: 30px;
+        }
+        
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 15px;
+        }
+        
+        .toggle-label {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 80px;
+            height: 50px;
+            background: #f44336;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .toggle-switch.active {
+            background: #4caf50;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(30px);
+        }
+        
+        .status-text {
+            font-size: 16px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .status-text.delivered {
+            color: #4caf50;
+        }
+        
+        .status-text.pending {
+            color: #f44336;
+        }
+        
+        .save-btn {
+            width: 100%;
+            padding: 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 24px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            transition: transform 0.2s;
+        }
+        
+        .save-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .save-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .success-message {
+            background: #4caf50;
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.3s;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .hint {
+            font-size: 14px;
+            color: #999;
+            margin-top: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">🚚 डिलीवरी ट्रैकर</div>
+            <div class="header-subtitle">Delivery Boy Interface</div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="card">
+            <!-- Order Number Input -->
+            <div class="input-group">
+                <label class="label">📦 ऑर्डर नंबर (Flat Number)</label>
+                <input 
+                    type="text" 
+                    class="order-input" 
+                    id="orderNumber" 
+                    placeholder="P8-4A"
+                    autocomplete="off"
+                >
+                <div class="hint">उदाहरण: P8-4A, A-101, B2-205</div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="payment-section">
+                <label class="label">💰 पैसे कैसे मिले?</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="upi" name="payment" value="UPI">
+                        <label for="upi" class="radio-label">📱 UPI</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="cash" name="payment" value="CASH">
+                        <label for="cash" class="radio-label">💵 CASH</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery Status Toggle -->
+            <div class="delivery-section">
+                <label class="label">✅ डिलीवर हुआ?</label>
+                <div class="toggle-container">
+                    <span class="toggle-label">नहीं / हाँ</span>
+                    <div class="toggle-switch" id="deliveryToggle" onclick="toggleDelivery()">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="status-text pending" id="statusText">❌ डिलीवर नहीं हुआ</div>
+            </div>
+
+            <!-- Save Button -->
+            <button class="save-btn" id="saveBtn" onclick="saveDelivery()">
+                💾 सेव करें (SAVE)
+            </button>
+
+            <!-- Success Message -->
+            <div class="success-message" id="successMessage">
+                ✅ सफलतापूर्वक सेव हो गया!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURATION
+        const SHEET_ID = 'YOUR_GOOGLE_SHEET_ID_HERE'; // Change this to your Sheet ID
+        const DELIVERY_SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Deliveries`;
+        
+        let isDelivered = false;
+        let autoSaveInterval = null;
+
+        // Toggle delivery status
+        function toggleDelivery() {
+            isDelivered = !isDelivered;
+            const toggle = document.getElementById('deliveryToggle');
+            const statusText = document.getElementById('statusText');
+            
+            if (isDelivered) {
+                toggle.classList.add('active');
+                statusText.textContent = '✅ डिलीवर हो गया';
+                statusText.classList.remove('pending');
+                statusText.classList.add('delivered');
+            } else {
+                toggle.classList.remove('active');
+                statusText.textContent = '❌ डिलीवर नहीं हुआ';
+                statusText.classList.remove('delivered');
+                statusText.classList.add('pending');
+            }
+        }
+
+        // Save delivery data
+        function saveDelivery() {
+            const orderNumber = document.getElementById('orderNumber').value.trim().toUpperCase();
+            const payment = document.querySelector('input[name="payment"]:checked');
+            
+            // Validation
+            if (!orderNumber) {
+                alert('कृपया ऑर्डर नंबर डालें!\nPlease enter order number!');
+                return;
+            }
+            
+            if (!payment) {
+                alert('कृपया UPI या CASH चुनें!\nPlease select UPI or CASH!');
+                return;
+            }
+            
+            const deliveryData = {
+                orderNumber: orderNumber,
+                paymentMethod: payment.value,
+                delivered: isDelivered ? 'YES' : 'NO',
+                timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+            };
+            
+            // Save to Google Sheets (will be implemented with Google Apps Script)
+            console.log('Saving delivery data:', deliveryData);
+            
+            // For now, show success message
+            showSuccess();
+            
+            // In production, this would call a Google Apps Script web app to update the sheet
+            // Example: fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify(deliveryData) })
+        }
+
+        // Show success message
+        function showSuccess() {
+            const successMsg = document.getElementById('successMessage');
+            successMsg.classList.add('show');
+            
+            setTimeout(() => {
+                successMsg.classList.remove('show');
+            }, 3000);
+        }
+
+        // Auto-save every 2 minutes
+        function startAutoSave() {
+            // Clear existing interval if any
+            if (autoSaveInterval) {
+                clearInterval(autoSaveInterval);
+            }
+            
+            // Set new interval for 2 minutes (120000 ms)
+            autoSaveInterval = setInterval(() => {
+                const orderNumber = document.getElementById('orderNumber').value.trim();
+                const payment = document.querySelector('input[name="payment"]:checked');
+                
+                // Only auto-save if order number is filled
+                if (orderNumber && payment) {
+                    saveDelivery();
+                    console.log('Auto-saved at:', new Date().toLocaleTimeString());
+                }
+            }, 120000); // 2 minutes
+        }
+
+        // Initialize auto-save on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            startAutoSave();
+            console.log('Auto-save enabled: Data will be saved every 2 minutes');
+        });
+
+        // Clear auto-save when page is closed
+        window.addEventListener('beforeunload', function() {
+            if (autoSaveInterval) {
+                clearInterval(autoSaveInterval);
+            }
+        });
+    </script>
+</body>
+</html>

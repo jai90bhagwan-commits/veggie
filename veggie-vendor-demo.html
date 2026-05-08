@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fresh Veggies - Vegetable Vendor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8f5e9 100%);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .header-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: #666;
+        }
+        
+        .search-container {
+            padding: 15px;
+        }
+        
+        .search-box {
+            position: relative;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 15px 15px 15px 50px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            outline: none;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        
+        .products-list {
+            padding: 0 15px;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .product-card.unavailable {
+            opacity: 0.5;
+        }
+        
+        .product-emoji {
+            font-size: 40px;
+        }
+        
+        .product-info {
+            flex: 1;
+        }
+        
+        .product-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .top-badge {
+            background: #ffeb3b;
+            color: #333;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+        
+        .product-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2e7d32;
+            margin-top: 5px;
+        }
+        
+        .out-of-stock {
+            font-size: 12px;
+            color: #f44336;
+            margin-top: 5px;
+        }
+        
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .qty-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            border: 2px solid #2e7d32;
+            background: white;
+            color: #2e7d32;
+            font-size: 20px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        
+        .qty-btn.plus {
+            background: #2e7d32;
+            color: white;
+            border: none;
+        }
+        
+        .qty-display {
+            min-width: 45px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .whatsapp-float {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #25d366;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            font-size: 30px;
+            transition: transform 0.2s;
+        }
+        
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+        }
+        
+        .cart-summary {
+            position: fixed;
+            bottom: 90px;
+            left: 15px;
+            right: 15px;
+            background: #2e7d32;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 998;
+        }
+        
+        .cart-summary.active {
+            display: flex;
+        }
+        
+        .cart-info {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .cart-total {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .place-order-btn {
+            background: white;
+            color: #2e7d32;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            font-size: 16px;
+            outline: none;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .submit-btn {
+            background: #25d366;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-title">🥬 Fresh Veggies</div>
+        <div class="header-subtitle">Farm Fresh • Delivered to Your Door</div>
+    </div>
+
+    <!-- Announcement Modal -->
+    <div class="modal-overlay" id="announcementModal">
+        <div class="modal">
+            <button class="close-btn" onclick="closeAnnouncement()">×</button>
+            <div style="font-size: 40px; margin-bottom: 15px;">🔔</div>
+            <div style="font-size: 18px; font-weight: 600; margin-bottom: 10px; color: #333;">
+                Announcement
+            </div>
+            <div id="announcementText" style="font-size: 15px; color: #666; line-height: 1.6;">
+                🎉 Fresh vegetables available! Free delivery on orders above ₹200
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" placeholder="Search vegetables..." id="searchInput" onkeyup="filterProducts()">
+        </div>
+    </div>
+
+    <!-- Products List -->
+    <div class="products-list" id="productsList"></div>
+
+    <!-- Order Form Modal -->
+    <div class="modal-overlay" id="orderFormModal">
+        <div class="modal" style="max-width: 500px; margin-top: 50px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                <h2 style="margin: 0; font-size: 22px; color: #333;">Delivery Details</h2>
+                <button class="close-btn" onclick="closeOrderForm()">×</button>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Society *</label>
+                <select class="form-select" id="society">
+                    <option value="">Select Society</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Tower</label>
+                    <input type="text" class="form-input" id="tower" placeholder="A1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Flat/House *</label>
+                    <input type="text" class="form-input" id="flatNumber" placeholder="101">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Contact Person Name *</label>
+                <input type="text" class="form-input" id="name" placeholder="Your name">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Mobile Number *</label>
+                <input type="tel" class="form-input" id="mobile" placeholder="98765 43210">
+            </div>
+
+            <button class="submit-btn" onclick="sendOrder()">📱 Send Order via WhatsApp</button>
+        </div>
+    </div>
+
+    <!-- Cart Summary -->
+    <div class="cart-summary" id="cartSummary">
+        <div>
+            <div class="cart-info" id="cartInfo">0 items selected</div>
+            <div class="cart-total" id="cartTotal">₹0</div>
+        </div>
+        <button class="place-order-btn" onclick="openOrderForm()">🛒 Place Order</button>
+    </div>
+
+    <!-- Floating WhatsApp Button -->
+    <button class="whatsapp-float" onclick="handleWhatsAppClick()">💬</button>
+
+    <script>
+        // Configuration
+        const WHATSAPP_NUMBER = '919876543210'; // Change this to your WhatsApp number
+        const SHEET_ID = 'YOUR_GOOGLE_SHEET_ID'; // Change this to your Google Sheet ID
+        
+        // Demo Data (will be replaced by Google Sheets data when configured)
+        let products = [
+            { name: 'आलू (Potato)', price: '25', unit: 'kg', emoji: '🥔', frequent: 'TRUE', available: 'TRUE' },
+            { name: 'टमाटर (Tomato)', price: '30', unit: 'kg', emoji: '🍅', frequent: 'TRUE', available: 'TRUE' },
+            { name: 'प्याज (Onion)', price: '35', unit: 'kg', emoji: '🧅', frequent: 'TRUE', available: 'TRUE' },
+            { name: 'धनिया (Coriander)', price: '20', unit: 'bundle', emoji: '🌿', frequent: 'TRUE', available: 'TRUE' },
+            { name: 'हरी मिर्च (Green Chili)', price: '40', unit: 'kg', emoji: '🌶️', frequent: 'TRUE', available: 'TRUE' },
+            { name: 'गाजर (Carrot)', price: '45', unit: 'kg', emoji: '🥕', frequent: 'FALSE', available: 'TRUE' },
+            { name: 'बैंगन (Brinjal)', price: '35', unit: 'kg', emoji: '🍆', frequent: 'FALSE', available: 'TRUE' },
+            { name: 'भिंडी (Okra)', price: '50', unit: 'kg', emoji: '🫑', frequent: 'FALSE', available: 'TRUE' },
+            { name: 'पालक (Spinach)', price: '25', unit: 'bundle', emoji: '🥬', frequent: 'FALSE', available: 'TRUE' },
+            { name: 'शिमला मिर्च (Capsicum)', price: '60', unit: 'kg', emoji: '🫑', frequent: 'FALSE', available: 'TRUE' }
+        ];
+        
+        let societies = [
+            { name: 'Green Valley Society' },
+            { name: 'Blue Ridge Apartments' },
+            { name: 'Sunshine Residency' },
+            { name: 'Royal Gardens' }
+        ];
+        
+        let selectedItems = {};
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSocieties();
+            renderProducts();
+            document.getElementById('announcementModal').classList.add('active');
+        });
+        
+        function loadSocieties() {
+            const select = document.getElementById('society');
+            societies.forEach(s => {
+                const option = document.createElement('option');
+                option.value = s.name;
+                option.textContent = s.name;
+                select.appendChild(option);
+            });
+        }
+        
+        function renderProducts() {
+            // Sort: frequent first
+            const sorted = [...products].sort((a, b) => {
+                if (a.frequent === 'TRUE' && b.frequent !== 'TRUE') return -1;
+                if (a.frequent !== 'TRUE' && b.frequent === 'TRUE') return 1;
+                return a.name.localeCompare(b.name);
+            });
+            
+            const container = document.getElementById('productsList');
+            container.innerHTML = '';
+            
+            sorted.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card' + (product.available === 'FALSE' ? ' unavailable' : '');
+                
+                card.innerHTML = `
+                    <div class="product-emoji">${product.emoji || '🥗'}</div>
+                    <div class="product-info">
+                        <div class="product-name">
+                            ${product.name}
+                            ${product.frequent === 'TRUE' ? '<span class="top-badge">TOP</span>' : ''}
+                        </div>
+                        <div class="product-price">₹${product.price}/${product.unit || 'kg'}</div>
+                        ${product.available === 'FALSE' ? '<div class="out-of-stock">Out of stock</div>' : ''}
+                    </div>
+                    ${product.available !== 'FALSE' ? `
+                        <div class="quantity-controls">
+                            <button class="qty-btn" onclick="changeQuantity('${product.name}', -0.5)">−</button>
+                            <div class="qty-display" id="qty-${product.name.replace(/[^a-zA-Z0-9]/g, '')}">${selectedItems[product.name] || 0}</div>
+                            <button class="qty-btn plus" onclick="changeQuantity('${product.name}', 0.5)">+</button>
+                        </div>
+                    ` : ''}
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+        
+        function changeQuantity(name, delta) {
+            selectedItems[name] = Math.max(0, (selectedItems[name] || 0) + delta);
+            document.getElementById('qty-' + name.replace(/[^a-zA-Z0-9]/g, '')).textContent = selectedItems[name];
+            updateCart();
+        }
+        
+        function updateCart() {
+            const itemCount = Object.values(selectedItems).filter(qty => qty > 0).length;
+            const total = Object.entries(selectedItems).reduce((sum, [name, qty]) => {
+                const product = products.find(p => p.name === name);
+                return sum + (product ? parseFloat(product.price) * qty : 0);
+            }, 0);
+            
+            document.getElementById('cartInfo').textContent = `${itemCount} items selected`;
+            document.getElementById('cartTotal').textContent = `₹${total.toFixed(0)}`;
+            
+            if (itemCount > 0) {
+                document.getElementById('cartSummary').classList.add('active');
+            } else {
+                document.getElementById('cartSummary').classList.remove('active');
+            }
+        }
+        
+        function filterProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.product-card');
+            
+            cards.forEach(card => {
+                const name = card.querySelector('.product-name').textContent.toLowerCase();
+                card.style.display = name.includes(query) ? 'flex' : 'none';
+            });
+        }
+        
+        function closeAnnouncement() {
+            document.getElementById('announcementModal').classList.remove('active');
+        }
+        
+        function openOrderForm() {
+            const hasItems = Object.values(selectedItems).some(qty => qty > 0);
+            if (hasItems) {
+                document.getElementById('orderFormModal').classList.add('active');
+            }
+        }
+        
+        function closeOrderForm() {
+            document.getElementById('orderFormModal').classList.remove('active');
+        }
+        
+        function handleWhatsAppClick() {
+            const hasItems = Object.values(selectedItems).some(qty => qty > 0);
+            if (hasItems) {
+                openOrderForm();
+            } else {
+                window.open(`https://wa.me/${WHATSAPP_NUMBER}`, '_blank');
+            }
+        }
+        
+        function sendOrder() {
+            const society = document.getElementById('society').value;
+            const tower = document.getElementById('tower').value;
+            const flatNumber = document.getElementById('flatNumber').value;
+            const name = document.getElementById('name').value;
+            const mobile = document.getElementById('mobile').value;
+            
+            if (!society || !flatNumber || !name || !mobile) {
+                alert('Please fill all required fields');
+                return;
+            }
+            
+            let totalAmount = 0;
+            const orderItems = Object.entries(selectedItems)
+                .filter(([_, qty]) => qty > 0)
+                .map(([name, qty]) => {
+                    const product = products.find(p => p.name === name);
+                    const itemTotal = product ? parseFloat(product.price) * qty : 0;
+                    totalAmount += itemTotal;
+                    return `${name}: ${qty} ${product?.unit || 'kg'} - ₹${itemTotal}`;
+                })
+                .join('\n');
+            
+            const message = `🛒 *New Order*\n\n*Items:*\n${orderItems}\n\n*Total Amount: ₹${totalAmount.toFixed(0)}*\n\n*Delivery Details:*\nSociety: ${society}\nTower: ${tower}\nFlat: ${flatNumber}\nName: ${name}\nMobile: ${mobile}`;
+            
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+            closeOrderForm();
+        }
+    </script>
+</body>
+</html>
